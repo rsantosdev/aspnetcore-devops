@@ -288,4 +288,4 @@ __pycache__/
 *.xsd.cs
 
 # MAC Os folders
-.DS_Store/
+.DS_Store
