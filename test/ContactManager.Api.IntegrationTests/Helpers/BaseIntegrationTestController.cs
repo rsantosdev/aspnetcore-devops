@@ -1,20 +1,20 @@
 using System.Net.Http;
-using api.Models;
+using ContactManager.Api.Models;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace IntegrationTests.Fixtures
+namespace ContactManager.Api.IntegrationTests.Fixtures
 {
     [Collection("Api collection")]
-    public class BaseIntegrationTests
+    public class BaseIntegrationTestController
     {
         protected readonly TestServer Server;
         protected readonly HttpClient Client;
-        protected readonly ApiDbContext DataContext;
+        protected readonly DataContext DataContext;
 
         
-        public BaseIntegrationTests(ApiFixture fixture)
+        public BaseIntegrationTestController(ContactManagerApiFixture fixture)
         {
             Server = fixture.Server;
             Client = fixture.Client;
@@ -27,7 +27,7 @@ namespace IntegrationTests.Fixtures
         {
             var commands = new[]
             {
-                "DELETE FROM People"
+                "DELETE FROM Contact"
             };
 
             DataContext.Database.OpenConnection();

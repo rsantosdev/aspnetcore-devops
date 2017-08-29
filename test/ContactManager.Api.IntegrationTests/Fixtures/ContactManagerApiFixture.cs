@@ -1,58 +1,60 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using api;
-using api.Models;
+using ContactManager.Api.Models;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace IntegrationTests.Fixtures
+namespace ContactManager.Api.IntegrationTests.Fixtures
 {
-    public class ApiFixture : IDisposable    
+    public class ContactManagerApiFixture : IDisposable    
     {
         public readonly TestServer Server;
         public readonly HttpClient Client;
-        public readonly ApiDbContext DataContext;
+        public readonly DataContext DataContext;
         public readonly IConfigurationRoot Configuration;
         
-        public ApiFixture()
+        public ContactManagerApiFixture()
         {
             Configuration = BuildConfiguration();
 
-            var opts = new DbContextOptionsBuilder<ApiDbContext>();
-            opts.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
-            DataContext = new ApiDbContext(opts.Options);
             
-            var builder = new WebHostBuilder().UseStartup<Startup>();
+            var dbContextOptions = ConfigureDataServices();
+            DataContext = new DataContext(dbContextOptions.Options);
+            
+            var builder = WebHost.CreateDefaultBuilder().UseStartup<Startup>();
             Server = new TestServer(builder);
             Client = Server.CreateClient();
+
+            SetupDatabase();
         }
 
         private IConfigurationRoot BuildConfiguration()
         {
-            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{envName}.json", optional: true)
                 .AddEnvironmentVariables();
 
             return builder.Build();
         }
 
+        private DbContextOptionsBuilder<DataContext> ConfigureDataServices()
+        {
+            var opts = new DbContextOptionsBuilder<DataContext>();
+            opts.UseSqlite(
+                Configuration.GetConnectionString("DefaultConnection"),
+                b => b.MigrationsAssembly("ContactManager.Api")
+            );
+
+            return opts;
+        }
+
         private void SetupDatabase()
         {
-            try
-            {
-                DataContext.Database.EnsureCreated();
-                DataContext.Database.Migrate();
-            }
-            catch (System.Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            DataContext.Database.Migrate();
         }
 
         public void Dispose()

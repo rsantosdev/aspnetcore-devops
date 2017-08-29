@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ContactManager.Api.IntegrationTests.Fixtures;
 using ContactManager.Api.Models;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -9,23 +10,20 @@ using Xunit;
 
 namespace ContactManager.Api.IntegrationTests.Controllers
 {
-    public class ContactsControllerIntegrationTest
+    public class ContactsControllerIntegrationTest : BaseIntegrationTestController
     {
+        public ContactsControllerIntegrationTest(ContactManagerApiFixture fixture) : base(fixture)
+        {
+        }
+
         [Fact]
         public async Task CanGetContactsEmpty()
         {
-            var builder = WebHost.CreateDefaultBuilder()
-                .UseStartup<Startup>();
+            var response = await Client.GetAsync("/api/contacts");
+            response.EnsureSuccessStatusCode();
 
-            using (var server = new TestServer(builder))
-            using (var client = server.CreateClient())
-            {
-                var response = await client.GetAsync("/api/contacts");
-                response.EnsureSuccessStatusCode();
-
-                var result = await response.Content.ReadAsAsync<List<Contact>>();
-                Assert.Empty(result);
-            }
+            var result = await response.Content.ReadAsAsync<List<Contact>>();
+            Assert.Empty(result);
         }
     }
 }
