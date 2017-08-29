@@ -20,14 +20,14 @@ namespace ContactManager.Api.IntegrationTests.Fixtures
             Client = fixture.Client;
             DataContext = fixture.DataContext;
 
-            // ClearDb();
+            ClearDb();
         }
 
         private void ClearDb()
         {
             var commands = new[]
             {
-                "DELETE FROM Contact"
+                "DELETE FROM Contacts"
             };
 
             DataContext.Database.OpenConnection();
