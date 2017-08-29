@@ -2,26 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace api.Controllers
+namespace ContactManager.Api.Controllers
 {
-    [Route("api/people")]
-    public class PeopleController : Controller
+    [Route("api/[controller]")]
+    public class ValuesController : Controller
     {
-        private readonly ApiDbContext _db;
-
-        public PeopleController(ApiDbContext context)
-        {
-            _db = context;
-        }
-        
+        // GET api/values
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public IEnumerable<string> Get()
         {
-            return Json(await _db.People.ToListAsync());
+            return new string[] { "value1", "value2" };
         }
 
         // GET api/values/5

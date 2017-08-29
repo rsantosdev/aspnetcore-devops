@@ -20,19 +20,24 @@ namespace IntegrationTests.Fixtures
             Client = fixture.Client;
             DataContext = fixture.DataContext;
 
-            ClearDb();
+            // ClearDb();
         }
 
         private void ClearDb()
         {
             var commands = new[]
             {
-                "EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'",
-                "EXEC sp_MSForEachTable 'DELETE FROM ?'",
-                "EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'"
+                "DELETE FROM People"
             };
 
             DataContext.Database.OpenConnection();
+
+            foreach(var cmd in commands)
+            {
+                DataContext.Database.ExecuteSqlCommand(cmd);
+            }
+
+            DataContext.Database.CloseConnection();
         }
     }
 }

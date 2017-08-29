@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using api;
 using api.Models;
 using Microsoft.AspNetCore.Hosting;
@@ -48,10 +49,9 @@ namespace IntegrationTests.Fixtures
                 DataContext.Database.EnsureCreated();
                 DataContext.Database.Migrate();
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                //TODO: Add a better logging
-                // Does nothing
+                Console.WriteLine(ex.Message);
             }
         }
 
