@@ -9,6 +9,8 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
     steps:
       - checkout
+      - restore_cache:
+          key: aspnetcore-devops-v2-{{ .Branch }}-{{ checksum "src/ContactManager.Api/ContactManager.Api.csproj" }}-{{ checksum "test/ContactManager.Api.IntegrationTests/ContactManager.Api.IntegrationTests.csproj" }}          
       - run: 
           name: Restore Dependencies
           command: dotnet restore -s https://api.nuget.org/v3/index.json -s https://dotnet.myget.org/F/aspnetwebstack-dev/api/v3/index.json
@@ -19,3 +21,7 @@ jobs:
           name: Integration Tests
           working_directory: test/ContactManager.Api.IntegrationTests
           command: dotnet xunit
+      - save_cache:
+          key: aspnetcore-devops-v2-{{ .Branch }}-{{ checksum "src/ContactManager.Api/ContactManager.Api.csproj" }}-{{ checksum "test/ContactManager.Api.IntegrationTests/ContactManager.Api.IntegrationTests.csproj" }}
+          paths:
+            - ~/.nuget
