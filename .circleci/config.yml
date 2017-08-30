@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: /repo
+    working_directory: ~/repo
     docker:
       - image: microsoft/dotnet
     environment:
@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run: 
           name: Restore Dependencies
-          command: dotnet restore
+          command: dotnet restore -s https://api.nuget.org/v3/index.json -s https://dotnet.myget.org/F/aspnetwebstack-dev/api/v3/index.json
       - run: 
           name: Build Solution
           command: dotnet build
