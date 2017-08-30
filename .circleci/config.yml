@@ -41,12 +41,14 @@ jobs:
           key: aspnetcore-devops-v2-{{ .Branch }}-{{ checksum "src/ContactManager.Api/ContactManager.Api.csproj" }}-{{ checksum "test/ContactManager.Api.IntegrationTests/ContactManager.Api.IntegrationTests.csproj" }}
           paths:
             - ~/.nuget
+      - store_artifacts:
+          path: src/ContactManager.Api/bin/Release/netcoreapp2.0/publish/
       - deploy:
           name: Deploy production
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker build -t aspnetcore-devops .
-              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
               docker tag aspnetcore-devops $DOCKER_USER/aspnetcore-devops:latest
               docker push $DOCKER_USER/aspnetcore-devops
             fi
