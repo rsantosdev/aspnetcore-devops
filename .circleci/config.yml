@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    working_directory: /repo
+    docker:
+      - image: microsoft/dotnet
+    environment:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    steps:
+      - checkout
+      - run: 
+          name: Restore Dependencies
+          command: dotnet restore
+      - run: 
+          name: Build Solution
+          command: dotnet build
+      - run: 
+          name: Integration Tests
+          working_directory: test/ContactManager.Api.IntegrationTests
+          command: dotnet xunit
