@@ -9,6 +9,7 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
     steps:
       - checkout
+      - setup_remote_docker
       - restore_cache:
           key: aspnetcore-devops-v2-{{ .Branch }}-{{ checksum "src/ContactManager.Api/ContactManager.Api.csproj" }}-{{ checksum "test/ContactManager.Api.IntegrationTests/ContactManager.Api.IntegrationTests.csproj" }}          
       - run: 
@@ -21,7 +22,31 @@ jobs:
           name: Integration Tests
           working_directory: test/ContactManager.Api.IntegrationTests
           command: dotnet xunit
+      - run:
+          name: Publish Artifacts
+          working_directory: src/ContactManager.Api
+          command: dotnet publish --configuration Release
+      - run:
+          name: Install Docker client
+          command: |
+            set -x
+            VER="17.04.0-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
+      - run:
+          name: List After
+          command: ls -la
       - save_cache:
           key: aspnetcore-devops-v2-{{ .Branch }}-{{ checksum "src/ContactManager.Api/ContactManager.Api.csproj" }}-{{ checksum "test/ContactManager.Api.IntegrationTests/ContactManager.Api.IntegrationTests.csproj" }}
           paths:
             - ~/.nuget
+      - deploy:
+          name: Deploy production
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker build -t aspnetcore-devops .
+              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag aspnetcore-devops $DOCKER_USER/aspnetcore-devops:latest
+              docker push $DOCKER_USER/aspnetcore-devops
+            fi
