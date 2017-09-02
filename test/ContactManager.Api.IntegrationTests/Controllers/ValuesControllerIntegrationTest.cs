@@ -20,7 +20,7 @@ namespace ContactManager.Api.IntegrationTests.Controllers
 
             var result = await response.Content.ReadAsAsync<List<string>>();
             Assert.NotEmpty(result);
-            Assert.Equal(2, result.Count);
+            Assert.Equal(3, result.Count);
         }
     }
 }
